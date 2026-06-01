@@ -12,7 +12,7 @@ const glfw_module = glfw_zig.module("glfw-zig");
 
 In your source codes, access the module as:
 
-```
+```zig
 const glfw = @import("glfw-zig");
 
 // Example usage
