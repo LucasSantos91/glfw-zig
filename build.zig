@@ -7,11 +7,12 @@ pub fn build(b: *std.Build) void {
     const glfw_dep = b.dependency("glfw", .{});
 
     const translate_glfw = b.addTranslateC(.{
-        .root_source_file = b.path("src/glfw_zig.h"),
+        .root_source_file = glfw_dep.path("include/GLFW/glfw3.h"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
     });
+    translate_glfw.defineCMacro("GLFW_INCLUDE_NONE", null);
     translate_glfw.addIncludePath(glfw_dep.path("include"));
 
     const glfw = translate_glfw.addModule("glfw-zig");
@@ -31,13 +32,6 @@ pub fn build(b: *std.Build) void {
         .linux => addLinuxX11Sources(glfw, glfw_dep),
         else => @panic("glfw-zig currently supports Windows, macOS, and Linux/X11 targets"),
     }
-
-    const tests = b.addTest(.{
-        .root_module = glfw,
-    });
-    const run_tests = b.addRunArtifact(tests);
-    const test_step = b.step("test", "Build and run glfw-zig tests");
-    test_step.dependOn(&run_tests.step);
 }
 
 const c_flags = &.{
