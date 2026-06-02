@@ -3,7 +3,6 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-
     const glfw_dep = b.dependency("glfw", .{});
 
     const translate_glfw = b.addTranslateC(.{
@@ -12,8 +11,16 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    translate_glfw.defineCMacro("GLFW_INCLUDE_NONE", null);
+    translate_glfw.defineCMacro("GLFW_INCLUDE_VULKAN ", null);
     translate_glfw.addIncludePath(glfw_dep.path("include"));
+
+    {
+        // Workaroung because glfw keeps the vulkan header in the wrong address
+        const write_vulkan = b.addWriteFiles();
+        b.getInstallStep().dependOn(&write_vulkan.step);
+        _ = write_vulkan.addCopyFile(glfw_dep.path("deps/glad/vulkan.h"), "vulkan/vulkan.h");
+        translate_glfw.addIncludePath(write_vulkan.getDirectory());
+    }
 
     const glfw = translate_glfw.addModule("glfw-zig");
 
