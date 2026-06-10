@@ -11,6 +11,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    if (optimize != .Debug) translate_glfw.defineCMacro("NDEBUG", null);
     translate_glfw.defineCMacro("GLFW_INCLUDE_VULKAN ", null);
     translate_glfw.addIncludePath(glfw_dep.path("include"));
 
