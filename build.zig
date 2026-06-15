@@ -11,7 +11,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    if (optimize != .Debug) translate_glfw.defineCMacro("NDEBUG", null);
     translate_glfw.defineCMacro("GLFW_INCLUDE_VULKAN ", null);
     translate_glfw.addIncludePath(glfw_dep.path("include"));
 
@@ -33,6 +32,11 @@ pub fn build(b: *std.Build) void {
         .flags = c_flags,
         .language = .c,
     });
+
+    if (optimize != .Debug) {
+        translate_glfw.defineCMacro("NDEBUG", null);
+        glfw.addCMacro("NDEBUG", "1");
+    }
 
     switch (target.result.os.tag) {
         .windows => addWindowsSources(glfw, glfw_dep),
